@@ -4,35 +4,22 @@
 # you can delete this line if you're not using Docker
 image: ubuntu:latest
 
-before_script:
-  - echo "Before script section"
-  - echo "For example you might run an update here or install a build dependency"
-  - echo "Or perhaps you might print out some debugging details"
-  - sudo apt-get update -y
-  - sudo apt-get install axel libncurses5-dev zlib1g-dev gawk flex patch git-core g++ subversion xz-utils zip unzip -y
-
-after_script:
-  - echo "After script section"
-  - echo "For example you might do some cleanup here"
-
-build1:
-  stage: build
+installation_dependency:
+  cache:
+    untracked: true
+  only:
+    refs:
+      - dev
   script:
-    - echo "Do your build here"
+    - echo "installationing dependency..."
+    - bash ./shell-script/installation_dependency.sh
+    - bash ./shell-script/download-imagesbuilder.sh
+    - bash ./shell-script/unzip_openwrt_imagebuilder.sh
+    - echo "compileing openwrt..."
+    - bash ./shell-script/compile_openwrt.sh
+    - bash ./shell-script/zip_images.sh
 
-test1:
-  stage: test
-  script:
-    - echo "Do a test here"
-    - echo "For example run a test suite"
+  artifacts:
+    paths:
+      - openwrt_zip/
 
-test2:
-  stage: test
-  script:
-    - echo "Do another parallel test here"
-    - echo "For example run a lint test"
-
-deploy1:
-  stage: deploy
-  script:
-    - echo "Do your deploy here"
