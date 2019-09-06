@@ -2,22 +2,62 @@
 # see https://docs.gitlab.com/ce/ci/yaml/README.html for all available options
 
 # you can delete this line if you're not using Docker
-image: ubuntu:latest
+
+stages:
+  - setup
+  - test
+  - build
+
+image: tangcuyu/openwrt-imagebuilder-x86-ubuntu:latest
+
+cache:
+  paths:
+    - $BUILD_DIR/*
+
 
 installation_dependency:
-  cache:
-    untracked: true
+  stage: setup
+  only:
+    refs:
+      - dev
+#   cache:
+#     paths:
+#       - $BUILD_DIR
+  script:
+    - echo "installationing dependency..."
+    # - bash ./shell-script/installation_dependency.sh
+    - mkdir -p $BUILD_DIR
+    - rm $BUILD_DIR/* -rf
+    - echo "axel -n 30 $DOWNLOAD_URL -o $BUILD_DIR/openwrt-imagebuilder-$OPENWRT_VERSION-$OPENWRT_PLATFORM-$OPENWRT_TARGETS.Linux-x86_64.tar.xz"
+    - cd  $BUILD_DIR && axel -n 30 "https://downloads.openwrt.org/releases/$OPENWRT_VERSION/targets/$OPENWRT_PLATFORM/$OPENWRT_TARGETS/openwrt-imagebuilder-$OPENWRT_VERSION-$OPENWRT_PLATFORM-$OPENWRT_TARGETS.Linux-x86_64.tar.xz" && pwd 
+    - pwd && ls -al && xz -d "openwrt-imagebuilder-$OPENWRT_VERSION-$OPENWRT_PLATFORM-$OPENWRT_TARGETS.Linux-x86_64.tar.xz"
+    - pwd && tar -xf "openwrt-imagebuilder-$OPENWRT_VERSION-$OPENWRT_PLATFORM-$OPENWRT_TARGETS.Linux-x86_64.tar"
+
+make-info:
+  stage: test
   only:
     refs:
       - dev
   script:
-    - echo "installationing dependency..."
-    - bash ./shell-script/installation_dependency.sh
-    - bash ./shell-script/download-imagesbuilder.sh
-    - bash ./shell-script/unzip_openwrt_imagebuilder.sh
+    - echo "make info..."
+    - pwd && ls -al
+    - cd $BUILD_DIR && ls al && pwd
+    - pwd && cd "openwrt-imagebuilder-$OPENWRT_VERSION-$OPENWRT_PLATFORM-$OPENWRT_TARGETS.Linux-x86_64" && ls -al && make info
+    
+compile:
+  stage: build
+  only:
+    refs:
+      - dev
+  script:
     - echo "compileing openwrt..."
-    - bash ./shell-script/compile_openwrt.sh
-    - bash ./shell-script/zip_images.sh
+    - pwd && ls -al
+    - cd $BUILD_DIR && ls al && pwd
+    - pwd && cd "openwrt-imagebuilder-$OPENWRT_VERSION-$OPENWRT_PLATFORM-$OPENWRT_TARGETS.Linux-x86_64" && ls -al 
+    - make image PROFILE=$BUILD_TARGETS PACKAGES="$PACKAGES"
+    - mkdir -p ../../openwrt_zip/
+    - ls -al ../../
+    - mv $BIN_FILE/* ../../openwrt_zip/
 
   artifacts:
     paths:
