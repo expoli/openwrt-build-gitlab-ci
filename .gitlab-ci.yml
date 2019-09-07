@@ -36,7 +36,7 @@ make-info:
   script:
     - echo "make info..."
     - pwd && ls -al
-    - cd $BUILD_DIR && ls al && pwd
+    - cd $BUILD_DIR && ls -al && pwd
     - pwd && cd "openwrt-imagebuilder-$OPENWRT_VERSION-$OPENWRT_PLATFORM-$OPENWRT_TARGETS.Linux-x86_64" && ls -al && make info
     
 compile:
@@ -44,6 +44,9 @@ compile:
   only:
     refs:
       - dev
+  cache:
+    paths:
+      - openwrt_zip/*
   script:
     - echo "compileing openwrt..."
     - pwd && ls -al
