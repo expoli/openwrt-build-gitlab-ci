@@ -20,17 +20,12 @@ installation_dependency:
   only:
     refs:
       - dev
-#   cache:
-#     paths:
-#       - $BUILD_DIR
   script:
     - echo "installationing dependency..."
-    # - bash ./shell-script/installation_dependency.sh
-    - mkdir -p $BUILD_DIR
-    - rm $BUILD_DIR/* -rf
-    - echo "axel -n 30 $DOWNLOAD_URL -o $BUILD_DIR/openwrt-imagebuilder-$OPENWRT_VERSION-$OPENWRT_PLATFORM-$OPENWRT_TARGETS.Linux-x86_64.tar.xz"
-    - cd  $BUILD_DIR && axel -n 30 "https://downloads.openwrt.org/releases/$OPENWRT_VERSION/targets/$OPENWRT_PLATFORM/$OPENWRT_TARGETS/openwrt-imagebuilder-$OPENWRT_VERSION-$OPENWRT_PLATFORM-$OPENWRT_TARGETS.Linux-x86_64.tar.xz" && pwd 
-    - pwd && ls -al && xz -d "openwrt-imagebuilder-$OPENWRT_VERSION-$OPENWRT_PLATFORM-$OPENWRT_TARGETS.Linux-x86_64.tar.xz"
+    - pwd && ls -al
+    - ls openwrt*.tar.xz || echo "axel -n 30 $DOWNLOAD_URL -o $BUILD_DIR/openwrt-imagebuilder-$OPENWRT_VERSION-$OPENWRT_PLATFORM-$OPENWRT_TARGETS.Linux-x86_64.tar.xz"
+    - cd  $BUILD_DIR && ls openwrt*.tar.xz || axel -n 30 "https://downloads.openwrt.org/releases/$OPENWRT_VERSION/targets/$OPENWRT_PLATFORM/$OPENWRT_TARGETS/openwrt-imagebuilder-$OPENWRT_VERSION-$OPENWRT_PLATFORM-$OPENWRT_TARGETS.Linux-x86_64.tar.xz" && pwd 
+    - pwd && ls -al && ls openwrt*.tar || xz -d "openwrt-imagebuilder-$OPENWRT_VERSION-$OPENWRT_PLATFORM-$OPENWRT_TARGETS.Linux-x86_64.tar.xz"
     - pwd && tar -xf "openwrt-imagebuilder-$OPENWRT_VERSION-$OPENWRT_PLATFORM-$OPENWRT_TARGETS.Linux-x86_64.tar"
 
 make-info:
